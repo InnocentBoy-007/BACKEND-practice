@@ -6,13 +6,16 @@ const users = model.signUpUser;
 export const signUp = async (req, res) => {
     const { username, email, password } = req.body;
 
-    if (!username || !email || !password) return res.status(400).json({
+    // does not require a validation since the frontend will handle it
+    /**
+     * if (!username || !email || !password) return res.status(400).json({
         message: "All fields required! - backend"
     })
+     */
 
     try {
-        const findByDuplicateEmail = await users.findOne({ email });
-        if (findByDuplicateEmail) return res.status(400).json({
+        const confirmEmail = await users.findOne({ email });
+        if (confirmEmail) return res.status(400).json({
             message: "Email already exist! - backend"
         })
 
@@ -38,25 +41,29 @@ export const signUp = async (req, res) => {
 
 export const signIn = async(req, res) => {
     const {username, password} = req.body;
-    if(!username || !password) return res.status(400).json({
+    // does not require a validation since the frontend will handle it
+    /**
+     * if(!username || !password) return res.status(400).json({
         message:"All fields required! - backend"
     })
+     */
+
     try {
-        const findUser = await users.findOne({username}).select("+password");
-        if(!findUser) return res.status(404).json({
+        const user = await users.findOne({username}).select("+password");
+        if(!user) return res.status(404).json({
             message:`${username} not found! - backend`
         })
-        const comparePassword = await bcrypt.compare(password,findUser.password);
+        const comparePassword = await bcrypt.compare(password,user.password);
         if(!comparePassword) return res.status(401).json({
             message:"Wrong password - backend"
         })
         res.status(200).json({
             message:"Login successful! - backend",
-            findUser
+            user
         })
     } catch (error) {
-        res.status(500).json({
-            message:`Internal server error: ${error} - backend`
+        res.status(error.statusCode || 500).json({
+            message:error.message || `Internal server error: ${error} - backend`
         })
     }
 }
