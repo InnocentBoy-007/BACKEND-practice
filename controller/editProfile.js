@@ -107,7 +107,7 @@ export const updatePassword = async (req, res) => {
 
 export const deleteUsers = async (req, res) => {
     const { id } = req.params;
-    if (!id) return res.status(400).json({
+    if (!id || mongoose.Types.ObjectId.isValid) return res.status(400).json({
         message: "Id is required! - backend"
     })
     try {
@@ -119,8 +119,8 @@ export const deleteUsers = async (req, res) => {
             message: `User, ${user.username} deleted successfully! - backend`
         })
     } catch (error) {
-        res.status(500).json({
-            message: `Internal server error - backend: ${error}`
+        res.status(error.statusCode || 500).json({
+            message: error.message || `Internal server error - backend`
         })
     }
 }

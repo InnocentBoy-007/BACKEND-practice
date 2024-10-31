@@ -49,6 +49,10 @@ export const signIn = async(req, res) => {
      */
 
     try {
+        /**
+         * fetch the user information along with the password
+         * since in the schema, password:{select:false}
+         */
         const user = await users.findOne({username}).select("+password");
         if(!user) return res.status(404).json({
             message:`${username} not found! - backend`
